@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+'''<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -115,12 +115,9 @@ tr:hover td{background:#FAFAF8;}
 .status-sent{background:var(--navy-light);color:var(--navy-mid);}
 .status-replied{background:var(--success-light);color:var(--success);}
 .status-booked{background:#E0E7FF;color:#3730A3;}
-
-/* COST CALC */
-.cost-bar{display:flex;align-items:center;gap:12px;margin:8px 0;}
-.cost-track{flex:1;height:28px;background:var(--bg);border-radius:4px;overflow:hidden;position:relative;border:1px solid var(--line);}
-.cost-fill{height:100%;background:var(--navy);display:flex;align-items:center;justify-content:flex-end;padding-right:8px;color:#fff;font-size:11px;font-weight:600;transition:width .6s ease;}
-.cost-fill.human{background:#94A3B8;}
+.status-active{background:var(--success-light);color:var(--success);}
+.status-paused{background:var(--warning-light);color:var(--warning);}
+.status-cancelled{background:var(--danger-light);color:var(--danger);}
 
 /* MODAL */
 .modal-overlay{position:fixed;inset:0;background:rgba(15,39,68,.35);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;}
@@ -181,7 +178,8 @@ tr:hover td{background:#FAFAF8;}
     <div class="tab active" onclick="switchTab('prospect')">Prospect Finder</div>
     <div class="tab" onclick="switchTab('email')">Email Forge</div>
     <div class="tab" onclick="switchTab('campaigns')">Campaigns</div>
-    <div class="tab" onclick="switchTab('settings')">Settings & API</div>
+    <div class="tab" onclick="switchTab('subscribers')">Subscribers</div>
+    <div class="tab" onclick="switchTab('settings')">Settings</div>
   </div>
 
   <!-- PANEL: PROSPECT FINDER -->
@@ -191,7 +189,7 @@ tr:hover td{background:#FAFAF8;}
         <div class="card-header">
           <div>
             <div class="card-title">Find Targets</div>
-            <div class="card-sub">Pick a vertical and city. We’ll build the exact Claude prompt to find businesses that need a receptionist.</div>
+            <div class="card-sub">Pick a vertical and city. We'll build the exact Claude prompt to find businesses that need a receptionist.</div>
           </div>
         </div>
         <div class="fg">
@@ -292,7 +290,7 @@ tr:hover td{background:#FAFAF8;}
         <button class="copy-btn" onclick="copyPrompt('prospectPromptText')">Copy</button>
       </div>
       <div class="fg mt-3">
-        <label>Paste Claude’s JSON output here</label>
+        <label>Paste Claude's JSON output here</label>
         <textarea id="prospectResult" rows="6" placeholder='[{"name":"Smith & Associates","type":"Law Firm","phone":"(713) 555-0192","why":"No after-hours answering","angle":"3 paralegals currently splitting front-desk duty"}, ...]'></textarea>
         <small>Paste the exact JSON array Claude returns. The table below will auto-populate.</small>
       </div>
@@ -364,7 +362,7 @@ tr:hover td{background:#FAFAF8;}
             Subject: After-hours calls going to voicemail?<br><br>
             Hi [Name],<br><br>
             I noticed [specific pain signal]. That usually means revenue is walking to the competitor who answers the phone at 7 PM.<br><br>
-            We built Autoflow specifically for [industry] practices in [city] — an AI receptionist that handles booking, FAQs, and lead capture around the clock for less than one day’s pay of a human receptionist.<br><br>
+            We built Autoflow specifically for [industry] practices in [city] — an AI receptionist that handles booking, FAQs, and lead capture around the clock for less than one day's pay of a human receptionist.<br><br>
             Can I send you a 2-minute demo video?<br><br>
             Best,<br>
             [Your name]
@@ -387,7 +385,7 @@ tr:hover td{background:#FAFAF8;}
         <button class="copy-btn" onclick="copyPrompt('emailPromptText')">Copy</button>
       </div>
       <div class="fg mt-3">
-        <label>Paste Claude’s email output here (optional)</label>
+        <label>Paste Claude's email output here (optional)</label>
         <textarea id="emailResult" rows="6" placeholder="Paste subject + body here to save to this prospect's record..."></textarea>
       </div>
       <div class="flex">
@@ -457,26 +455,115 @@ tr:hover td{background:#FAFAF8;}
     </div>
   </div>
 
+  <!-- PANEL: SUBSCRIBERS -->
+  <div class="panel" id="panel-subscribers">
+    <div class="stat-grid" style="grid-template-columns:repeat(3,1fr);">
+      <div class="stat-card">
+        <div class="stat-num" id="subTotal">0</div>
+        <div class="stat-label">Total subscribers</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="subMRR">$0</div>
+        <div class="stat-label">Monthly recurring</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="subActive">0</div>
+        <div class="stat-label">Active right now</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">All Subscribers</div>
+          <div class="card-sub">Paying clients on monthly plans. Add manually when Stripe notifies you of a new signup.</div>
+        </div>
+        <div class="flex">
+          <button class="btn btn-sm btn-outline" onclick="exportSubCSV()">Export CSV</button>
+          <button class="btn btn-sm btn-danger" onclick="clearSubs()">Clear All</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Company</th>
+              <th>Plan</th>
+              <th>Status</th>
+              <th>Started</th>
+              <th>Notes</th>
+              <th style="width:90px">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="subTable"></tbody>
+        </table>
+      </div>
+      <div id="subEmpty" style="text-align:center;padding:40px;color:var(--faint);font-size:13px;">
+        No subscribers yet. Add them manually when they sign up via Stripe.
+      </div>
+    </div>
+
+    <!-- Add subscriber -->
+    <div class="card">
+      <div class="card-title" style="font-size:18px;margin-bottom:16px;">Add New Subscriber</div>
+      <div class="grid-3">
+        <div class="fg">
+          <label>Name</label>
+          <input type="text" id="subName" placeholder="e.g. Dr. Sarah Patel">
+        </div>
+        <div class="fg">
+          <label>Email</label>
+          <input type="email" id="subEmail" placeholder="sarah@pateldental.com">
+        </div>
+        <div class="fg">
+          <label>Company</label>
+          <input type="text" id="subCompany" placeholder="e.g. Patel Dental Group">
+        </div>
+      </div>
+      <div class="grid-3">
+        <div class="fg">
+          <label>Plan</label>
+          <select id="subPlan">
+            <option value="Reputation Only">Reputation Only — $99/mo</option>
+            <option value="Full Suite">Full Suite — $599/mo</option>
+            <option value="Enterprise">Enterprise — Custom</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Status</label>
+          <select id="subStatus">
+            <option value="active">Active</option>
+            <option value="paused">Paused</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Start Date</label>
+          <input type="date" id="subDate" value="">
+        </div>
+      </div>
+      <div class="fg">
+        <label>Notes</label>
+        <input type="text" id="subNotes" placeholder="e.g. 3 locations, wants custom voice">
+      </div>
+      <button class="btn btn-primary" onclick="addSubscriber()">Add Subscriber</button>
+    </div>
+  </div>
+
   <!-- PANEL: SETTINGS -->
   <div class="panel" id="panel-settings">
     <div class="grid-2">
       <div class="card">
         <div class="card-header">
           <div>
-            <div class="card-title">API Key</div>
-            <div class="card-sub">Stored in your browser only. Never sent to our servers.</div>
+            <div class="card-title">Your Info</div>
+            <div class="card-sub">Used for email sign-offs and prompt personalization.</div>
           </div>
         </div>
-        <div class="alert alert-warn">
-          <div>⚠️ Anthropic’s API blocks browser requests (CORS). The prompts in this dashboard are designed to be copied into Claude.ai or a secure script. Do not expose this key in public repos.</div>
-        </div>
         <div class="fg">
-          <label>Anthropic API Key</label>
-          <input type="password" id="apiKey" placeholder="sk-ant-api03-...">
-          <small>Used only to generate prompt boxes. Not required if you paste prompts manually into Claude.ai.</small>
-        </div>
-        <div class="fg">
-          <label>Your Name (for email sign-offs)</label>
+          <label>Your Name</label>
           <input type="text" id="userName" placeholder="e.g. Jordan">
         </div>
         <div class="fg">
@@ -513,7 +600,7 @@ tr:hover td{background:#FAFAF8;}
             <div style="width:32px;height:32px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0;">3</div>
             <div>
               <div style="font-weight:600;font-size:14px;">Email & Track</div>
-              <div style="font-size:13px;color:var(--mid);margin-top:2px;">Use the Email Forge to draft personalized pitches. Track everything in the Campaigns tab. Export to CSV when you need a spreadsheet.</div>
+              <div style="font-size:13px;color:var(--mid);margin-top:2px;">Use the Email Forge to draft personalized pitches. Track everything in the Campaigns tab. Manage paying clients in Subscribers.</div>
             </div>
           </div>
         </div>
@@ -558,18 +645,60 @@ tr:hover td{background:#FAFAF8;}
   </div>
 </div>
 
+<!-- SUBSCRIBER EDIT MODAL -->
+<div class="modal-overlay" id="subEditModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Update Subscriber</div>
+      <div class="card-sub">Edit plan, status, or notes for this paying client.</div>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="subEditId">
+      <div class="grid-2">
+        <div class="fg">
+          <label>Plan</label>
+          <select id="subEditPlan">
+            <option value="Reputation Only">Reputation Only — $99/mo</option>
+            <option value="Full Suite">Full Suite — $599/mo</option>
+            <option value="Enterprise">Enterprise — Custom</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Status</label>
+          <select id="subEditStatus">
+            <option value="active">Active</option>
+            <option value="paused">Paused</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg">
+        <label>Notes</label>
+        <textarea id="subEditNotes" rows="3" placeholder="e.g. Wants to upgrade to Enterprise next quarter"></textarea>
+      </div>
+      <div class="flex">
+        <button class="btn btn-primary" onclick="saveSubEdit()">Save Changes</button>
+        <button class="btn btn-outline" onclick="closeSubModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 /* STATE */
 var campaigns = JSON.parse(localStorage.getItem('af_campaigns') || '[]');
+var subscribers = JSON.parse(localStorage.getItem('af_subscribers') || '[]');
 var settings = JSON.parse(localStorage.getItem('af_settings') || '{}');
 
 /* INIT */
 document.addEventListener('DOMContentLoaded', function(){
-  if(settings.apiKey) document.getElementById('apiKey').value = settings.apiKey;
   if(settings.userName) document.getElementById('userName').value = settings.userName;
   if(settings.userEmail) document.getElementById('userEmail').value = settings.userEmail;
+  document.getElementById('subDate').value = new Date().toISOString().slice(0,10);
   renderCampaigns();
+  renderSubscribers();
   updateStats();
+  updateSubStats();
   populateEmailSelect();
 });
 
@@ -580,12 +709,12 @@ function switchTab(id){
   event.target.classList.add('active');
   document.getElementById('panel-'+id).classList.add('active');
   if(id==='campaigns'){renderCampaigns();updateStats();}
+  if(id==='subscribers'){renderSubscribers();updateSubStats();}
   if(id==='email')populateEmailSelect();
 }
 
 /* SETTINGS */
 function saveSettings(){
-  settings.apiKey = document.getElementById('apiKey').value.trim();
   settings.userName = document.getElementById('userName').value.trim();
   settings.userEmail = document.getElementById('userEmail').value.trim();
   localStorage.setItem('af_settings', JSON.stringify(settings));
@@ -618,14 +747,11 @@ function generateProspectPrompt(){
   var prompt = `You are a lead researcher for Autoflow, an AI receptionist company.\n\n` +
     `Find ${count} real ${verticals[industry]} in ${city} that likely need a 24/7 AI receptionist.\n\n` +
     `Focus on businesses showing this pain signal: ${pains[pain]}.\n\n` +
-    `For each business, provide:\n` +
-    `- name (real business name)\n` +
-    `- type (specific subtype)\n` +
-    `- phone (formatted)\n` +
-    `- why (one sentence on why they need Autoflow)\n` +
-    `- angle (specific operational detail you found that makes them a good fit)\n\n` +
+    `For each business, provide ONLY:\n` +
+    `- name (real business name or contact person)\n` +
+    `- email (best guess business email, formatted as info@company.com or similar)\n\n` +
     `Return ONLY a valid JSON array. No markdown, no explanation. Example:\n` +
-    `[{"name":"River Oaks Dental","type":"Cosmetic Dental","phone":"(713) 555-0192","why":"No weekend answering; loses implant consults","angle":"Single front-desk employee, closes at 4pm Fridays"}]\n\n` +
+    `[{"name":"River Oaks Dental","email":"info@riveroaksdental.com"},{"name":"Smith Law Firm","email":"contact@smithlaw.com"}]\n\n` +
     `Make every entry realistic and specific to ${city}.`;
 
   document.getElementById('prospectPromptText').textContent = prompt;
@@ -702,7 +828,7 @@ function parseProspects(){
     populateEmailSelect();
     alert('Added ' + added + ' prospects to Campaigns.');
     document.getElementById('prospectResult').value='';
-  }catch(e){alert('Invalid JSON. Make sure you copied the array exactly.\nError: '+e.message);}
+  }catch(e){alert('Invalid JSON. Make sure you copied the array exactly.\\nError: '+e.message);}
 }
 
 /* MANUAL ADD */
@@ -803,6 +929,108 @@ function saveEmailToProspect(){
   if(c){c.emailSent=body;c.status='sent';saveCampaigns();renderCampaigns();updateStats();alert('Saved to '+c.name);}
 }
 
+/* SUBSCRIBERS */
+function addSubscriber(){
+  var name = document.getElementById('subName').value.trim();
+  var email = document.getElementById('subEmail').value.trim();
+  var company = document.getElementById('subCompany').value.trim();
+  var plan = document.getElementById('subPlan').value;
+  var status = document.getElementById('subStatus').value;
+  var date = document.getElementById('subDate').value;
+  var notes = document.getElementById('subNotes').value.trim();
+  if(!name || !email){alert('Name and email required.');return;}
+  subscribers.push({
+    id: 's_' + Date.now() + '_' + Math.random().toString(36).substr(2,5),
+    name:name, email:email, company:company||'—', plan:plan, status:status,
+    date:date||new Date().toISOString().slice(0,10), notes:notes,
+    created:new Date().toISOString()
+  });
+  saveSubscribers();
+  renderSubscribers();
+  updateSubStats();
+  document.getElementById('subName').value='';
+  document.getElementById('subEmail').value='';
+  document.getElementById('subCompany').value='';
+  document.getElementById('subNotes').value='';
+}
+
+function renderSubscribers(){
+  var tbody = document.getElementById('subTable');
+  var empty = document.getElementById('subEmpty');
+  if(subscribers.length===0){tbody.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  tbody.innerHTML = subscribers.map(function(s){
+    var statusClass = 'status-' + s.status;
+    var statusText = {active:'Active',paused:'Paused',cancelled:'Cancelled'}[s.status] || s.status;
+    var planPrice = {'Reputation Only':'$99','Full Suite':'$599','Enterprise':'Custom'}[s.plan] || '';
+    return `<tr>
+      <td><strong style="color:var(--text);">${esc(s.name)}</strong></td>
+      <td><a href="mailto:${esc(s.email)}" style="color:var(--navy-mid);text-decoration:underline;">${esc(s.email)}</a></td>
+      <td>${esc(s.company)}</td>
+      <td>${esc(s.plan)} <span style="color:var(--faint);font-size:11px;">${planPrice}</span></td>
+      <td><span class="status ${statusClass}">${statusText}</span></td>
+      <td class="mono" style="font-size:12px;">${esc(s.date)}</td>
+      <td style="font-size:12px;color:var(--faint);max-width:180px;">${esc(s.notes)}</td>
+      <td><button class="btn btn-sm btn-outline" onclick="openSubEdit('${s.id}')">Edit</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function saveSubscribers(){localStorage.setItem('af_subscribers', JSON.stringify(subscribers));}
+
+function updateSubStats(){
+  var active = subscribers.filter(function(s){return s.status==='active';});
+  var mrr = active.reduce(function(sum,s){
+    return sum + (s.plan==='Reputation Only'?99:s.plan==='Full Suite'?599:0);
+  },0);
+  document.getElementById('subTotal').textContent = subscribers.length;
+  document.getElementById('subMRR').textContent = '$' + mrr.toLocaleString();
+  document.getElementById('subActive').textContent = active.length;
+}
+
+function exportSubCSV(){
+  if(subscribers.length===0){alert('No subscribers to export.');return;}
+  var headers = ['Name','Email','Company','Plan','Status','StartDate','Notes'];
+  var rows = subscribers.map(function(s){return [s.name,s.email,s.company,s.plan,s.status,s.date,(s.notes||'').replace(/\\n/g,' ')];});
+  var csv = [headers].concat(rows).map(function(r){return r.map(function(f){return '"'+String(f).replace(/"/g,'""')+'"';}).join(',');}).join('\\n');
+  var blob = new Blob([csv],{type:'text/csv'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'autoflow-subscribers-' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+}
+
+function clearSubs(){
+  if(confirm('Delete ALL subscribers? This cannot be undone.')){
+    subscribers=[];saveSubscribers();renderSubscribers();updateSubStats();
+  }
+}
+
+/* SUBSCRIBER EDIT MODAL */
+function openSubEdit(id){
+  var s = subscribers.find(function(x){return x.id===id;});
+  if(!s)return;
+  document.getElementById('subEditId').value = id;
+  document.getElementById('subEditPlan').value = s.plan;
+  document.getElementById('subEditStatus').value = s.status;
+  document.getElementById('subEditNotes').value = s.notes;
+  document.getElementById('subEditModal').classList.add('open');
+}
+function closeSubModal(){document.getElementById('subEditModal').classList.remove('open');}
+function saveSubEdit(){
+  var id = document.getElementById('subEditId').value;
+  var s = subscribers.find(function(x){return x.id===id;});
+  if(s){
+    s.plan = document.getElementById('subEditPlan').value;
+    s.status = document.getElementById('subEditStatus').value;
+    s.notes = document.getElementById('subEditNotes').value;
+    saveSubscribers();
+    renderSubscribers();
+    updateSubStats();
+    closeSubModal();
+  }
+}
+
 /* UTILS */
 function copyPrompt(id){
   var text = document.getElementById(id).textContent;
@@ -815,8 +1043,8 @@ function copyTemplate(btn){
 function exportCSV(){
   if(campaigns.length===0){alert('No data to export.');return;}
   var headers = ['Name','Type','City','Angle','Status','EmailSent','Notes','Created'];
-  var rows = campaigns.map(function(c){return [c.name,c.type,c.city,c.angle,c.status,(c.emailSent||'').replace(/\n/g,' '),(c.notes||'').replace(/\n/g,' '),c.created];});
-  var csv = [headers].concat(rows).map(function(r){return r.map(function(f){return '"'+String(f).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
+  var rows = campaigns.map(function(c){return [c.name,c.type,c.city,c.angle,c.status,(c.emailSent||'').replace(/\\n/g,' '),(c.notes||'').replace(/\\n/g,' '),c.created];});
+  var csv = [headers].concat(rows).map(function(r){return r.map(function(f){return '"'+String(f).replace(/"/g,'""')+'"';}).join(',');}).join('\\n');
   var blob = new Blob([csv],{type:'text/csv'});
   var a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -835,5 +1063,5 @@ function clearAll(){
 with open('/mnt/agents/output/admin.html', 'w') as f:
     f.write(admin_html)
 
-print("admin.html created successfully")
+print("admin.html updated successfully")
 print(f"File size: {len(admin_html)} characters")
