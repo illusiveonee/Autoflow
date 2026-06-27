@@ -2,7 +2,7 @@ import { kv } from '@vercel/kv';
 import { updateStats } from './_utils.js';
 
 const CORS = {
-  'Access-Control-Allow-Origin':  '*',
+  'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type',
 };
@@ -20,7 +20,7 @@ export default async function handler(req, res) {
 
   // Step 1: Claude writes the cold email
   let subject = '';
-  let body    = '';
+  let body = '';
 
   try {
     const prompt = `You are writing a cold email on behalf of Autoflow (autoflow.icu), an AI receptionist and reputation management service for small businesses.
@@ -30,7 +30,7 @@ Write a short, personalized cold email to this prospect:
 - City: ${city}
 - Industry: ${industry}
 - Pain point: ${notes || 'missing calls and unanswered reviews'}
-- Pain score: ${pain}/10
+- Pain score: ${pain}/100
 
 Rules:
 - Subject line: specific to their business, no generic "I noticed your business" openers
@@ -45,33 +45,34 @@ Respond ONLY with valid JSON: {"subject":"...","body":"..."}`;
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
-        'Content-Type':      'application/json',
-        'x-api-key':         apiKey,
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model:      'claude-sonnet-4-6',
+        model: 'claude-sonnet-4-6',
         max_tokens: 800,
-        messages:   [{ role: 'user', content: prompt }],
+        messages: [{ role: 'user', content: prompt }],
       }),
     });
 
     if (!response.ok) throw new Error(`Claude ${response.status}`);
-    const data    = await response.json();
+    const data = await response.json();
     const content = data.content?.[0]?.text || '';
-    const match   = content.match(/\{[\s\S]*\}/);
+    
+    // FIX: non-greedy regex
+    const match = content.match(/\{[\s\S]*?\}/);
     if (!match) throw new Error('No JSON in Claude response');
-    const parsed  = JSON.parse(match[0]);
+    const parsed = JSON.parse(match[0]);
     subject = parsed.subject;
-    body    = parsed.body;
+    body = parsed.body;
 
   } catch (e) {
     console.error('Claude email write failed:', e.message);
     return res.status(500).json({ error: `Claude failed: ${e.message}` });
   }
 
-  // Step 2: Send via Resend (add RESEND_API_KEY to Vercel env)
-  // If you don't have Resend yet, the email is returned for manual send
+  // Step 2: Send via Resend
   const resendKey = process.env.RESEND_API_KEY;
   let sent = false;
 
@@ -80,19 +81,18 @@ Respond ONLY with valid JSON: {"subject":"...","body":"..."}`;
       const sendRes = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
-          'Content-Type':  'application/json',
+          'Content-Type': 'application/json',
           'Authorization': `Bearer ${resendKey}`,
         },
         body: JSON.stringify({
-          from:    'Autoflow <autoflowicu@protonmail.com>',
-          to:      [email],
+          from: 'Autoflow <autoflowicu@protonmail.com>',
+          to: [email],
           subject,
-          text:    body,
+          text: body,
         }),
       });
       if (sendRes.ok) {
         sent = true;
-        // Increment emailsSent counter in KV
         const current = (await kv.get('emailsSent')) || 0;
         await kv.set('emailsSent', current + 1);
         await updateStats();
