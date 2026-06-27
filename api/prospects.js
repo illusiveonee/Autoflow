@@ -7,6 +7,25 @@ const CORS = {
   'Access-Control-Allow-Headers': 'Content-Type',
 };
 
+function extractJSON(text) {
+  // Try to find JSON array in the response
+  text = text.trim();
+  
+  // Remove markdown code fences
+  text = text.replace(/```json\s*/g, '').replace(/```\s*/g, '');
+  
+  // Find the first [ and last ]
+  const start = text.indexOf('[');
+  const end = text.lastIndexOf(']');
+  
+  if (start === -1 || end === -1 || end <= start) {
+    throw new Error('No JSON array found in response');
+  }
+  
+  const jsonStr = text.substring(start, end + 1);
+  return JSON.parse(jsonStr);
+}
+
 export default async function handler(req, res) {
   Object.entries(CORS).forEach(([k, v]) => res.setHeader(k, v));
   if (req.method === 'OPTIONS') return res.status(200).end();
@@ -73,15 +92,16 @@ export default async function handler(req, res) {
 Find ${count} realistic ${industry} businesses in ${city} that would benefit from an AI receptionist.
 
 For each business return ONLY these fields:
-- name: real-sounding business name
-- email: realistic owner/manager email (e.g. owner@businessname.com)
+- name: real-sounding business name with owner name if applicable (e.g. "Michael G. Berz" or "Smith & Associates Law Firm")
+- email: realistic owner/manager email (e.g. owner@businessname.com, info@businessname.com, or firstname@businessname.com)
 - city: "${city}"
 - industry: "${industry}"
 - pain: integer 1-100 (higher = more desperate for AI receptionist / missing calls / bad reviews)
 - rating: estimated Google review rating 1.0-5.0
 - notes: one sentence explaining exactly why they need AI receptionist
 
-Respond ONLY with a valid JSON array. No markdown, no explanation, no code fences.`;
+Respond ONLY with a valid JSON array. No markdown, no explanation, no code fences. Example:
+[{"name":"Smith Dental","email":"drsmith@smithdental.com","city":"${city}","industry":"${industry}","pain":75,"rating":3.8,"notes":"Missing after-hours calls and has 3 unanswered negative reviews"}]`;
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -92,7 +112,7 @@ Respond ONLY with a valid JSON array. No markdown, no explanation, no code fence
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 2000,
+        max_tokens: 3000,
         messages: [{ role: 'user', content: prompt }],
       }),
     });
@@ -105,11 +125,9 @@ Respond ONLY with a valid JSON array. No markdown, no explanation, no code fence
     const data = await response.json();
     const content = data.content?.[0]?.text || '';
     
-    // FIX: non-greedy regex so it stops at first valid array
-    const match = content.match(/\[[\s\S]*?\]/);
-    if (!match) throw new Error('No JSON array in Claude response');
-
-    const parsed = JSON.parse(match[0]);
+    console.log('Claude raw response:', content.substring(0, 500));
+    
+    const parsed = extractJSON(content);
     if (!Array.isArray(parsed)) throw new Error('Claude did not return an array');
 
     prospects = parsed.map(p => ({
@@ -131,14 +149,19 @@ Respond ONLY with a valid JSON array. No markdown, no explanation, no code fence
 
   try {
     const existing = (await kv.get('prospects')) || [];
-    const existingEmails = new Set(existing.map(p => p.email.toLowerCase()));
-    const fresh = prospects.filter(p => !existingEmails.has(p.email.toLowerCase()));
-    await kv.set('prospects', [...existing, ...fresh]);
+    const existingEmails = new Set(existing.map(p => p.email.toLowerCase()).filter(e => e));
+    const fresh = prospects.filter(p => p.email && !existingEmails.has(p.email.toLowerCase()));
+    
+    // Also dedupe by name within the same city
+    const existingNames = new Set(existing.map(p => (p.name + '|' + p.city).toLowerCase()));
+    const freshDeduped = fresh.filter(p => !existingNames.has((p.name + '|' + p.city).toLowerCase()));
+    
+    await kv.set('prospects', [...existing, ...freshDeduped]);
     await updateStats();
     return res.status(200).json({
-      prospects: fresh,
-      count: fresh.length,
-      skipped: prospects.length - fresh.length,
+      prospects: freshDeduped,
+      count: freshDeduped.length,
+      skipped: prospects.length - freshDeduped.length,
     });
   } catch (e) {
     return res.status(500).json({ error: 'KV save failed' });
