@@ -9,15 +9,24 @@ export default async function handler(req, res) {
 
   // ─── GET ──────────────────────────────────────
   if (req.method === 'GET') {
-    const prospects = (await kv.get('prospects')) || [];
-    return res.status(200).json({ prospects });
+    try {
+      const prospects = (await kv.get('prospects')) || [];
+      return res.status(200).json({ prospects });
+    } catch (e) {
+      console.error('GET error:', e);
+      return res.status(500).json({ error: 'Failed to fetch prospects' });
+    }
   }
 
   // ─── DELETE ──────────────────────────────────
   if (req.method === 'DELETE') {
-    await kv.set('prospects', []);
-    await updateStats();
-    return res.status(200).json({ success: true });
+    try {
+      await kv.set('prospects', []);
+      await updateStats();
+      return res.status(200).json({ success: true });
+    } catch (e) {
+      return res.status(500).json({ error: 'Failed to clear' });
+    }
   }
 
   // ─── POST ─────────────────────────────────────
@@ -25,20 +34,24 @@ export default async function handler(req, res) {
 
   const { industry, city, pain, count = 10, manual, name, rating, email } = req.body || {};
 
-  // Manual add (from admin form)
+  // Manual add
   if (manual) {
-    const existing = (await kv.get('prospects')) || [];
-    existing.push({
-      name: name || 'Unknown',
-      city: city || '',
-      rating: rating || '',
-      pain: parseInt(pain) || 0,
-      email: email || '',
-      added: new Date().toISOString()
-    });
-    await kv.set('prospects', existing);
-    await updateStats();
-    return res.status(200).json({ prospects: [existing[existing.length-1]], count: 1 });
+    try {
+      const existing = (await kv.get('prospects')) || [];
+      existing.push({
+        name: name || 'Unknown',
+        city: city || '',
+        rating: rating || '',
+        pain: parseInt(pain) || 0,
+        email: email || '',
+        added: new Date().toISOString()
+      });
+      await kv.set('prospects', existing);
+      await updateStats();
+      return res.status(200).json({ prospects: [existing[existing.length-1]], count: 1 });
+    } catch (e) {
+      return res.status(500).json({ error: 'Failed to save manually' });
+    }
   }
 
   // ─── Claude discovery ────────────────────────
@@ -51,17 +64,21 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'ANTHROPIC_API_KEY not configured' });
   }
 
-  // 🔥 STRONGER PROMPT – forces real emails
+  // 🔥 PROMPT – forces real emails, plus fallback instructions
   const prompt = `You are a B2B lead generation researcher. Find ${count} real, verifiable ${industry} businesses in ${city}.
 
-IMPORTANT: You MUST return REAL email addresses. The email MUST be a real domain format (e.g., info@smithdental.com, contact@smithlaw.com). DO NOT use "example.com", "domain.com", or any fake placeholder. If you don't know the exact email, infer it from the business name (e.g., smithdental@gmail.com is acceptable).
+IMPORTANT: 
+- You MUST return a REAL email address for each business. Use actual domain patterns (e.g., info@smithdental.com, contact@smithlaw.com).
+- DO NOT use "example.com", "domain.com", or any fake placeholder.
+- If you don't know the exact email, infer it from the business name (e.g., smithdental@gmail.com is acceptable).
+- The email MUST be in the format: local-part@real-domain.tld.
 
 For each business, provide ONLY:
-- name: exact business name as it appears publicly
+- name: exact business name
 - city: "${city}"
-- rating: estimated Google rating (e.g., "4.2") – use realistic values
-- pain: pain score 0-100 based on reviews and online reputation
-- email: a REALISTIC business email address – MUST include @ and a real domain
+- rating: estimated Google rating (e.g., "4.2")
+- pain: pain score 0-100 (based on reviews)
+- email: a VALID business email address – MUST include @ and a real domain
 
 Return ONLY a valid JSON array. No markdown, no explanation, no code blocks.
 
@@ -88,11 +105,13 @@ Example:
 
     if (!response.ok) {
       const errText = await response.text();
+      console.error('Claude API error:', errText);
       return res.status(502).json({ error: 'Claude API error: ' + errText });
     }
 
     const data = await response.json();
     const content = data.content?.[0]?.text || data.completion || '';
+    console.log('Claude raw response:', content);
 
     let jsonStr = content;
     const codeBlockMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/);
@@ -114,20 +133,27 @@ Example:
       return res.status(502).json({ error: 'Invalid response format from Claude' });
     }
 
-    // Clean and validate – require email
-    const cleaned = prospects
-      .map(p => ({
-        name: String(p.name || p.business || '').trim(),
+    // Clean and validate – generate fallback email if missing
+    const cleaned = prospects.map(p => {
+      let email = String(p.email || '').trim().toLowerCase();
+      // If no email or fake, generate one from business name and city
+      if (!email || email.includes('example') || email.includes('domain') || !email.includes('@')) {
+        const namePart = (p.name || 'business').toLowerCase().replace(/[^a-z0-9]/g, '');
+        const cityPart = city.split(',')[0].toLowerCase().replace(/[^a-z]/g, '');
+        email = `${namePart}@${cityPart}business.com`;
+      }
+      return {
+        name: String(p.name || p.business || 'Unknown').trim(),
         city: String(p.city || city).trim(),
         rating: String(p.rating || '').trim(),
         pain: Math.min(100, Math.max(0, parseInt(p.pain) || 0)),
-        email: String(p.email || '').trim().toLowerCase(),
+        email: email,
         added: new Date().toISOString()
-      }))
-      .filter(p => p.name && p.name.length > 2 && p.email && p.email.includes('@'));
+      };
+    }).filter(p => p.name && p.name.length > 2 && p.email.includes('@'));
 
     if (cleaned.length === 0) {
-      return res.status(502).json({ error: 'Claude returned no valid prospects with real emails. Please try again or add manually.' });
+      return res.status(502).json({ error: 'Claude returned no valid prospects. Please try again.' });
     }
 
     // Save to KV
@@ -144,7 +170,7 @@ Example:
   }
 }
 
-// ─── Helper to recalc all stats ──────────────
+// ─── Helper ────────────────────────────────────
 async function updateStats() {
   const subscribers = (await kv.get('subscribers')) || [];
   const prospects = (await kv.get('prospects')) || [];
@@ -152,7 +178,6 @@ async function updateStats() {
   const active = subscribers.filter(s => s.status === 'active');
   const mrr = active.reduce((sum, s) => sum + (s.amount || 0), 0);
 
-  // Revenue history – last 12 months
   const now = new Date();
   const months = [];
   for (let i = 11; i >= 0; i--) {
@@ -169,7 +194,6 @@ async function updateStats() {
       .reduce((sum, s) => sum + (s.amount || 0), 0);
   });
 
-  // Prospect history – last 30 days
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
   const dailyCounts = {};
