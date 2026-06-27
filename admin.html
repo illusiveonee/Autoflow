@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Autoflow</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
@@ -15,7 +14,7 @@
     }
     .header {
       background: #fff;
-      padding: 16px;
+      padding: 12px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -61,6 +60,10 @@
     }
     .btn-primary {
       background: #3A8D7E;
+      color: white;
+    }
+    .btn-danger {
+      background: #e74c3c;
       color: white;
     }
     .tabs {
@@ -127,28 +130,17 @@
     .orange { background: #f5a623; }
     .red { background: #e74c3c; }
     
-    .chart-card {
+    .section-card {
       background: #fff;
       border-radius: 16px;
-      padding: 18px;
+      padding: 20px;
+      margin-bottom: 16px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     }
-    .chart-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
       margin-bottom: 16px;
-    }
-    .chart-title { font-size: 18px; font-weight: 700; }
-    .btn-refresh {
-      background: #fff;
-      border: 1px solid #e5e5e5;
-      color: #3b82f6;
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
     }
     
     .toast {
@@ -165,34 +157,26 @@
     }
     .toast.show { display: flex; }
     .toast-icon { color: #4ade80; font-weight: bold; }
+    .toast-error { color: #f87171; }
     
     .scan-box {
       background: #fff;
       border-radius: 16px;
       padding: 16px;
       margin-bottom: 12px;
-      display: flex;
-      gap: 8px;
-      align-items: stretch;
     }
-    .scan-box input {
-      flex: 1;
+    .scan-box input, .scan-box select {
+      width: 100%;
       border: 1px solid #e5e5e5;
-      border-radius: 10px;
-      padding: 10px 12px;
-      font-size: 15px;
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 16px;
       outline: none;
+      margin-bottom: 12px;
+      -webkit-appearance: none;
     }
-    .scan-box input:focus { border-color: #3A8D7E; }
-    .scan-box select {
-      border: 1px solid #e5e5e5;
-      border-radius: 10px;
-      padding: 10px;
-      font-size: 15px;
-      background: #fff;
-      outline: none;
-    }
-    .scan-box .btn { padding: 10px 16px; }
+    .scan-box input:focus, .scan-box select:focus { border-color: #3A8D7E; }
+    .scan-box .btn { padding: 14px 24px; font-size: 16px; }
     
     .table-card {
       background: #fff;
@@ -202,7 +186,7 @@
     }
     .table-header {
       display: grid;
-      grid-template-columns: 2fr 1fr 80px 80px 1fr 100px;
+      grid-template-columns: 2fr 1fr 80px 70px;
       padding: 12px 16px;
       font-size: 11px;
       font-weight: 600;
@@ -213,7 +197,7 @@
     }
     .table-row {
       display: grid;
-      grid-template-columns: 2fr 1fr 80px 80px 1fr 100px;
+      grid-template-columns: 2fr 1fr 80px 70px;
       padding: 14px 16px;
       align-items: center;
       border-bottom: 1px solid #f5f5f5;
@@ -239,19 +223,72 @@
     .pain-high { background: #fee2e2; color: #991b1b; }
     .pain-med { background: #fef3c7; color: #92400e; }
     .pain-low { background: #d1fae5; color: #065f46; }
-    .email-text { color: #555; font-size: 13px; word-break: break-all; }
-    .row-actions { display: flex; gap: 6px; }
-    .row-actions button {
-      padding: 5px 10px;
-      border-radius: 6px;
-      border: none;
+    
+    .pitch-box {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 12px;
+      border: 1px solid #e5e5e5;
+    }
+    .pitch-label {
       font-size: 12px;
       font-weight: 600;
-      cursor: pointer;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
     }
-    .btn-enrich { background: #dbeafe; color: #1e40af; }
-    .btn-send { background: #d1fae5; color: #065f46; }
-    .btn-del { background: #fee2e2; color: #991b1b; }
+    .pitch-text {
+      font-size: 15px;
+      line-height: 1.6;
+      color: #1a1a1a;
+      white-space: pre-wrap;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    .cost-comparison {
+      background: #1e293b;
+      color: #fff;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .cost-comparison h3 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .cost-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #334155;
+      font-size: 15px;
+    }
+    .cost-row:last-child { border-bottom: none; }
+    .cost-row .amount { font-weight: 700; }
+    .cost-row .bad { color: #f87171; }
+    .cost-row .good { color: #4ade80; }
+    .savings {
+      background: #3A8D7E;
+      color: white;
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      margin-top: 12px;
+    }
+    .savings-amount {
+      font-size: 28px;
+      font-weight: 700;
+    }
+    .savings-label {
+      font-size: 13px;
+      opacity: 0.9;
+      margin-top: 4px;
+    }
     
     .empty-state {
       text-align: center;
@@ -344,16 +381,23 @@
       font-size: 14px;
     }
     
+    .pitch-inputs {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .pitch-inputs input {
+      border: 1px solid #e5e5e5;
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 15px;
+      outline: none;
+    }
+    .pitch-inputs input:focus { border-color: #3A8D7E; }
+    
     @media (max-width: 640px) {
       .grid-2 { grid-template-columns: 1fr 1fr; gap: 10px; }
       .card-value { font-size: 26px; }
-      .table-header, .table-row {
-        grid-template-columns: 2fr 1fr 70px 70px;
-      }
-      .table-header > :nth-child(5), .table-row > :nth-child(5),
-      .table-header > :nth-child(6), .table-row > :nth-child(6) { display: none; }
-      .scan-box { flex-wrap: wrap; }
-      .scan-box input, .scan-box select { width: 100%; }
     }
   </style>
 </head>
@@ -407,12 +451,52 @@
       </div>
     </div>
     
-    <div class="chart-card">
-      <div class="chart-header">
-        <div class="chart-title">Revenue Growth</div>
-        <button class="btn-refresh" onclick="loadStats()">↻ Refresh</button>
+    <!-- AI PITCH GENERATOR -->
+    <div class="section-card">
+      <div class="section-title">🤖 AI Pitch Generator</div>
+      
+      <div class="cost-comparison">
+        <h3>Cost Comparison</h3>
+        <div class="cost-row">
+          <span>3 Receptionists @ $600/week</span>
+          <span class="amount bad" id="cost-3">$7,200/mo</span>
+        </div>
+        <div class="cost-row">
+          <span>4 Receptionists @ $600/week</span>
+          <span class="amount bad" id="cost-4">$9,600/mo</span>
+        </div>
+        <div class="cost-row">
+          <span>5 Receptionists @ $600/week</span>
+          <span class="amount bad" id="cost-5">$12,000/mo</span>
+        </div>
+        <div class="cost-row">
+          <span>Autoflow AI Receptionist</span>
+          <span class="amount good">$599/mo</span>
+        </div>
+        <div class="savings">
+          <div class="savings-amount" id="savings-amount">Save $11,401/mo</div>
+          <div class="savings-label">vs 5 human receptionists (24/7 coverage included)</div>
+        </div>
       </div>
-      <canvas id="revenueChart" height="220"></canvas>
+      
+      <div class="pitch-inputs">
+        <input type="text" id="pitch-business" placeholder="Business name (e.g. Smith Dental)">
+        <input type="text" id="pitch-contact" placeholder="Contact name (e.g. Dr. Smith)">
+        <input type="text" id="pitch-industry" placeholder="Industry (e.g. Dental Office)">
+        <input type="text" id="pitch-pain" placeholder="Pain point (e.g. missing after-hours calls)">
+      </div>
+      <button class="btn btn-primary" onclick="generatePitch()" id="pitch-btn" style="width:100%; justify-content:center; padding:14px;">
+        Generate AI Pitch Email
+      </button>
+      
+      <div class="pitch-box" id="pitch-result" style="display:none;">
+        <div class="pitch-label">Generated Email</div>
+        <div class="pitch-text" id="pitch-text"></div>
+        <div style="margin-top:12px; display:flex; gap:8px;">
+          <button class="btn btn-primary" onclick="copyPitch()" style="flex:1; justify-content:center;">Copy</button>
+          <button class="btn btn-outline" onclick="sendPitch()" style="flex:1; justify-content:center;">Send via Resend</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -448,8 +532,6 @@
         <div>City</div>
         <div>Rating</div>
         <div>Pain</div>
-        <div>Email</div>
-        <div>Actions</div>
       </div>
       <div id="prospects-list">
         <div class="empty-state">No prospects yet. Scan a city to find leads.</div>
@@ -502,9 +584,9 @@
 </div>
 
 <script>
-let revenueChart = null;
 let currentProspects = [];
 let currentSubscribers = [];
+let currentPitch = null;
 
 function switchTab(name) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -544,59 +626,10 @@ async function loadStats() {
     document.getElementById('prospects-count').textContent = stats.prospects || 0;
     document.getElementById('emails-sent').textContent = stats.emailsSent || 0;
     
-    // Animate bars
     document.getElementById('mrr-bar').style.width = Math.min(100, ((stats.mrr || 0) / 10000) * 100) + '%';
     document.getElementById('sub-bar').style.width = Math.min(100, ((stats.subscribers || 0) / 50) * 100) + '%';
     document.getElementById('prospect-bar').style.width = Math.min(100, ((stats.prospects || 0) / 100) * 100) + '%';
     document.getElementById('email-bar').style.width = Math.min(100, ((stats.emailsSent || 0) / 200) * 100) + '%';
-    
-    // Chart
-    const ctx = document.getElementById('revenueChart').getContext('2d');
-    const labels = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    // Use last 6 months of revenueHistory for display
-    const dataPoints = (stats.revenueHistory || []).slice(-6);
-    const displayLabels = labels.slice(-6);
-    
-    if (revenueChart) revenueChart.destroy();
-    revenueChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: displayLabels,
-        datasets: [{
-          label: 'Revenue',
-          data: dataPoints,
-          borderColor: '#3A8D7E',
-          backgroundColor: 'rgba(58,141,126,0.08)',
-          borderWidth: 3,
-          pointRadius: 5,
-          pointBackgroundColor: '#3A8D7E',
-          pointBorderColor: '#fff',
-          pointBorderWidth: 2,
-          fill: true,
-          tension: 0.4
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: {
-              callback: v => '$' + v,
-              color: '#999',
-              font: { size: 11 }
-            },
-            grid: { color: '#f0f0f0' }
-          },
-          x: {
-            ticks: { color: '#999', font: { size: 11 } },
-            grid: { display: false }
-          }
-        }
-      }
-    });
   } catch (e) {
     console.error('Stats error:', e);
   }
@@ -623,12 +656,6 @@ async function loadProspects() {
         <div class="biz-city">${escapeHtml(p.city)}</div>
         <div class="stars">${renderStars(p.rating)}<span style="color:#666;font-size:12px;margin-left:4px">${p.rating || '-'}</span></div>
         <div><span class="pain-badge ${getPainClass(p.pain)}">${p.pain}</span></div>
-        <div class="email-text">${escapeHtml(p.email)}</div>
-        <div class="row-actions">
-          ${!p.enriched ? `<button class="btn-enrich" onclick="enrich(${i})">Enrich</button>` : ''}
-          <button class="btn-send" onclick="outreach(${i})">Send</button>
-          <button class="btn-del" onclick="delProspect(${i})">Del</button>
-        </div>
       </div>
     `).join('');
   } catch (e) {
@@ -683,6 +710,10 @@ async function scanCity() {
     });
     const data = await res.json();
     
+    if (!res.ok) {
+      throw new Error(data.error || 'Scan failed');
+    }
+    
     const toast = document.getElementById('scan-toast');
     const msg = document.getElementById('scan-toast-msg');
     msg.textContent = `Scan city: {"city":"${city}","found":${data.count || 0},"added":${data.count || 0}}`;
@@ -692,69 +723,84 @@ async function scanCity() {
     loadProspects();
     loadStats();
   } catch (e) {
-    alert('Scan failed: ' + e.message);
+    const toast = document.getElementById('scan-toast');
+    const msg = document.getElementById('scan-toast-msg');
+    msg.innerHTML = `<span class="toast-icon">❌</span> Error: ${e.message}`;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 5000);
   } finally {
     btn.innerHTML = 'Scan City';
     btn.disabled = false;
   }
 }
 
-async function enrich(idx) {
-  const p = currentProspects[idx];
-  try {
-    const res = await fetch('/api/enrich', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: p.name, city: p.city, industry: p.industry })
-    });
-    await res.json();
-    loadProspects();
-  } catch (e) {
-    alert('Enrich failed');
-  }
-}
-
-async function outreach(idx) {
-  const p = currentProspects[idx];
-  if (!p.email) {
-    alert('No email for this prospect. Enrich first.');
+async function generatePitch() {
+  const business = document.getElementById('pitch-business').value.trim();
+  const contact = document.getElementById('pitch-contact').value.trim();
+  const industry = document.getElementById('pitch-industry').value.trim();
+  const pain = document.getElementById('pitch-pain').value.trim();
+  const btn = document.getElementById('pitch-btn');
+  
+  if (!business || !contact) {
+    alert('Enter business name and contact name');
     return;
   }
+  
+  btn.innerHTML = '<span class="spinner"></span> Generating...';
+  btn.disabled = true;
+  
   try {
     const res = await fetch('/api/outreach', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(p)
+      body: JSON.stringify({
+        name: business,
+        email: 'placeholder@example.com',
+        city: 'N/A',
+        industry: industry || 'Small Business',
+        pain: 75,
+        notes: pain || 'missing calls and losing customers to competitors'
+      })
     });
     const data = await res.json();
-    alert(data.sent ? 'Email sent!' : 'Email drafted (check console)');
-    loadStats();
+    
+    if (!res.ok) throw new Error(data.error || 'Generation failed');
+    
+    currentPitch = data;
+    
+    // Build cost comparison into the email
+    const cost3 = 3 * 600 * 4;
+    const cost4 = 4 * 600 * 4;
+    const cost5 = 5 * 600 * 4;
+    const autoflow = 599;
+    const savings5 = cost5 - autoflow;
+    
+    document.getElementById('cost-3').textContent = formatMoney(cost3) + '/mo';
+    document.getElementById('cost-4').textContent = formatMoney(cost4) + '/mo';
+    document.getElementById('cost-5').textContent = formatMoney(cost5) + '/mo';
+    document.getElementById('savings-amount').textContent = 'Save ' + formatMoney(savings5) + '/mo';
+    
+    document.getElementById('pitch-text').textContent = data.body;
+    document.getElementById('pitch-result').style.display = 'block';
+    
   } catch (e) {
-    alert('Outreach failed');
+    alert('Pitch generation failed: ' + e.message);
+  } finally {
+    btn.innerHTML = 'Generate AI Pitch Email';
+    btn.disabled = false;
   }
 }
 
-async function delProspect(idx) {
-  if (!confirm('Delete this prospect?')) return;
-  currentProspects.splice(idx, 1);
-  // Note: DELETE /api/prospects clears ALL. For single delete we'd need a new endpoint.
-  // For now, we'll just clear all (matches existing API) or you can add a single-delete endpoint.
-  // Since existing API only has bulk delete, we'll use local removal for UI only.
-  // Better: let's add a quick KV overwrite for single delete via a workaround.
-  try {
-    await fetch('/api/prospects', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ manual: true, name: '___temp___', email: 'temp@temp.com' })
-    });
-    // Re-save all except deleted
-    // Actually, the existing API doesn't support single delete. 
-    // Let's just reload for now.
-    loadProspects();
-    loadStats();
-  } catch (e) {
-    loadProspects();
-  }
+function copyPitch() {
+  const text = document.getElementById('pitch-text').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    alert('Copied to clipboard!');
+  });
+}
+
+async function sendPitch() {
+  if (!currentPitch) return;
+  alert('Email sending requires a prospect with a real email address. Use this pitch in the Prospects tab to send to a specific lead.');
 }
 
 function openAddModal() {
@@ -790,7 +836,6 @@ async function submitAddProspect() {
     closeAddModal();
     loadProspects();
     loadStats();
-    // clear form
     document.getElementById('add-name').value = '';
     document.getElementById('add-email').value = '';
   } catch (e) {
