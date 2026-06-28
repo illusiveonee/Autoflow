@@ -46,26 +46,22 @@ h1 em{font-style:italic;}
 .hero-proof{margin-top:22px;font-size:13px;color:var(--text-faint);}
 .hero-proof strong{color:var(--text-mid);}
 
-/* DEMO PANELS */
+/* DEMO PANELS — STATIC, NO ANIMATION */
 .demo-panels{display:flex;flex-direction:column;gap:12px;}
 .demo-panel{background:var(--surface);border:1px solid var(--line);border-radius:8px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06);}
 .demo-header{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line);background:#FAFAF8;}
 .dd{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 .demo-title{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-mid);margin-left:2px;}
 .demo-badge{margin-left:auto;background:var(--navy-light);color:var(--navy-mid);font-size:10.5px;font-weight:600;letter-spacing:.06em;padding:2px 8px;border-radius:100px;}
-.call-body{padding:14px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;height:180px;overflow:hidden;}
-.call-line{margin-bottom:2px;opacity:0;animation:fl .3s forwards;}
-@keyframes fl{to{opacity:1;}}
+.call-body{padding:14px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;min-height:180px;}
+.call-line{margin-bottom:2px;}
 .cl-ai{color:var(--navy-mid);}
 .cl-caller{color:var(--text-mid);}
 .cl-sys{color:var(--text-faint);font-size:10.5px;}
 .review-body{padding:14px;}
 .review-original{background:#FEF2F2;border-left:3px solid #F87171;padding:10px 12px;border-radius:4px;font-size:13px;color:#7F1D1D;margin-bottom:10px;font-style:italic;line-height:1.55;}
 .review-arrow{font-size:11px;color:var(--text-faint);margin-bottom:8px;font-family:'JetBrains Mono',monospace;}
-.review-response{background:var(--navy-light);border-left:3px solid var(--navy);padding:10px 12px;border-radius:4px;font-size:13px;color:var(--navy);line-height:1.55;min-height:60px;}
-#rt{display:inline;}
-.cur{display:inline-block;width:2px;height:13px;background:var(--navy);margin-left:2px;vertical-align:middle;animation:blink .7s step-end infinite;}
-@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+.review-response{background:var(--navy-light);border-left:3px solid var(--navy);padding:10px 12px;border-radius:4px;font-size:13px;color:var(--navy);line-height:1.55;}
 
 /* INDUSTRIES */
 .industries{padding:24px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
@@ -188,7 +184,17 @@ footer{border-top:1px solid var(--line);padding:36px 0;display:flex;justify-cont
           <div class="demo-title">AI Receptionist — live call</div>
           <div class="demo-badge">● LIVE</div>
         </div>
-        <div class="call-body" id="callBody"></div>
+        <div class="call-body">
+          <div class="call-line cl-sys">[Incoming call — Dr. Patel Dental Group — 11:43 AM]</div>
+          <div class="call-line cl-ai">AI: Thank you for calling Dr. Patel's office. How can I help you today?</div>
+          <div class="call-line cl-caller">Caller: Hi, I need to schedule a cleaning, I'm a new patient.</div>
+          <div class="call-line cl-ai">AI: Welcome! I'd love to get you booked. Are mornings or afternoons better?</div>
+          <div class="call-line cl-caller">Caller: Mornings, before 10 if possible.</div>
+          <div class="call-line cl-ai">AI: Perfect — I have Tuesday the 24th at 8:30 AM. Shall I book that for you?</div>
+          <div class="call-line cl-caller">Caller: Yes, that works great.</div>
+          <div class="call-line cl-ai">AI: Done. You'll get a confirmation text in just a moment. See you Tuesday!</div>
+          <div class="call-line cl-sys">[Appointment booked — calendar updated — summary emailed to Dr. Patel]</div>
+        </div>
       </div>
       <div class="demo-panel">
         <div class="demo-header">
@@ -201,7 +207,7 @@ footer{border-top:1px solid var(--line);padding:36px 0;display:flex;justify-cont
         <div class="review-body">
           <div class="review-original">★☆☆☆☆ "Waited 45 mins past my appointment. Front desk was rude when I asked about the wait. Will not be returning."</div>
           <div class="review-arrow">→ Autoflow generating response...</div>
-          <div class="review-response"><span id="rt"></span><span class="cur" id="cur"></span></div>
+          <div class="review-response">Thank you for your feedback. We sincerely apologize for the wait and for the experience you had with our front desk team. This is not the standard we hold ourselves to, and we'd love the opportunity to make it right. Please reach out to us directly — we're committed to earning your trust back.</div>
         </div>
       </div>
     </div>
@@ -349,57 +355,6 @@ footer{border-top:1px solid var(--line);padding:36px 0;display:flex;justify-cont
 </div>
 
 <script>
-// CALL SIMULATION
-var callScript = [
-  {cls:'cl-sys', text:'[Incoming call — Dr. Patel Dental Group — 11:43 AM]'},
-  {cls:'cl-ai',  text:"AI: Thank you for calling Dr. Patel's office. How can I help you today?"},
-  {cls:'cl-caller', text:"Caller: Hi, I need to schedule a cleaning, I'm a new patient."},
-  {cls:'cl-ai',  text:"AI: Welcome! I'd love to get you booked. Are mornings or afternoons better?"},
-  {cls:'cl-caller', text:'Caller: Mornings, before 10 if possible.'},
-  {cls:'cl-ai',  text:"AI: Perfect — I have Tuesday the 24th at 8:30 AM. Shall I book that for you?"},
-  {cls:'cl-caller', text:'Caller: Yes, that works great.'},
-  {cls:'cl-ai',  text:"AI: Done. You'll get a confirmation text in just a moment. See you Tuesday!"},
-  {cls:'cl-sys', text:'[Appointment booked — calendar updated — summary emailed to Dr. Patel]'},
-];
-function runCall() {
-  var body = document.getElementById('callBody');
-  if (!body) return;
-  body.innerHTML = '';
-  callScript.forEach(function(line, i) {
-    setTimeout(function() {
-      var el = document.createElement('div');
-      el.className = 'call-line ' + line.cls;
-      el.textContent = line.text;
-      body.appendChild(el);
-    }, i * 900);
-  });
-  setTimeout(runCall, callScript.length * 900 + 3000);
-}
-runCall();
-
-// REVIEW TYPEWRITER
-var reviewFull = "Thank you for your feedback. We sincerely apologize for the wait and for the experience you had with our front desk team. This is not the standard we hold ourselves to, and we'd love the opportunity to make it right. Please reach out to us directly — we're committed to earning your trust back.";
-var revIdx = 0;
-function typeReview() {
-  var el = document.getElementById('rt');
-  var cur = document.getElementById('cur');
-  if (!el) return;
-  if (revIdx < reviewFull.length) {
-    el.textContent += reviewFull[revIdx];
-    revIdx++;
-    setTimeout(typeReview, 28 + Math.random() * 18);
-  } else {
-    if (cur) cur.style.display = 'none';
-    setTimeout(function() {
-      revIdx = 0;
-      el.textContent = '';
-      if (cur) cur.style.display = '';
-      setTimeout(typeReview, 1200);
-    }, 4000);
-  }
-}
-setTimeout(typeReview, 2200);
-
 // INDUSTRIES
 var industries = ['Dental Offices','Law Firms','Auto Dealerships','Restaurants','Medical Practices','Real Estate Agencies','Hotels & Motels','Barbershops & Salons','Veterinary Clinics','HVAC & Plumbing','Gyms & Fitness Studios','Optometrists','Chiropractors','Accounting Firms','Physical Therapy','Spas & MedSpas','Roofing Companies','Pest Control','Urgent Care Centers','Mortgage Brokers','Insurance Agencies','Home Inspectors','Car Washes','Landscaping Companies','Flooring & Tile'];
 var track = document.getElementById('indTrack');
