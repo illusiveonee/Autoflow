@@ -215,6 +215,78 @@
       font-size: 18px;
       font-weight: 700;
       margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .refresh-btn {
+      font-size: 14px;
+      color: #3b82f6;
+      background: none;
+      border: 1px solid #e5e5e5;
+      border-radius: 10px;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .refresh-btn:active { opacity: 0.7; }
+    
+    /* REVENUE GROWTH CHART */
+    .revenue-chart {
+      position: relative;
+      height: 220px;
+      margin-top: 10px;
+    }
+    .chart-y-axis {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 30px;
+      width: 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding-right: 8px;
+    }
+    .chart-y-label {
+      font-size: 12px;
+      color: #999;
+    }
+    .chart-area {
+      position: absolute;
+      left: 45px;
+      right: 0;
+      top: 0;
+      bottom: 30px;
+      border-left: 1px solid #eee;
+      border-bottom: 1px solid #eee;
+    }
+    .chart-line {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 100%;
+    }
+    .chart-line svg {
+      width: 100%;
+      height: 100%;
+    }
+    .chart-x-axis {
+      position: absolute;
+      left: 45px;
+      right: 0;
+      bottom: 0;
+      height: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 8px;
+    }
+    .chart-x-label {
+      font-size: 11px;
+      color: #999;
     }
     
     .activity-list {
@@ -438,6 +510,19 @@
       color: #555;
     }
     
+    /* EMAIL FOOTER */
+    .email-footer {
+      text-align: center;
+      padding: 20px;
+      color: #888;
+      font-size: 13px;
+    }
+    .email-footer a {
+      color: #3A8D7E;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    
     @media (max-width: 640px) {
       .grid-2 { grid-template-columns: 1fr 1fr; gap: 10px; }
       .card-value { font-size: 26px; }
@@ -514,16 +599,37 @@
       </div>
     </div>
     
-    <!-- RECENT ACTIVITY -->
+    <!-- REVENUE GROWTH CHART -->
     <div class="section-card">
-      <div class="section-title">📋 Recent Activity</div>
-      <div class="activity-list" id="activity-list">
-        <div class="activity-item">
-          <div class="activity-icon green">✓</div>
-          <div>
-            <div class="activity-text">System initialized and ready</div>
-            <div class="activity-time">Just now</div>
+      <div class="section-title">
+        <span>📈 Revenue Growth</span>
+        <button class="refresh-btn" onclick="loadStats()">↻ Refresh</button>
+      </div>
+      <div class="revenue-chart" id="revenue-chart">
+        <div class="chart-y-axis">
+          <span class="chart-y-label" id="y-max">$1</span>
+          <span class="chart-y-label" id="y-mid">$0.9</span>
+          <span class="chart-y-label" id="y-min">$0</span>
+        </div>
+        <div class="chart-area">
+          <div class="chart-line" id="chart-line">
+            <svg viewBox="0 0 300 200" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" style="stop-color:#3A8D7E;stop-opacity:0.2" />
+                  <stop offset="100%" style="stop-color:#3A8D7E;stop-opacity:0" />
+                </linearGradient>
+              </defs>
+              <path id="chart-area-path" d="M0,200 L0,200 L300,200 Z" fill="url(#grad)" />
+              <path id="chart-line-path" d="M0,200 L300,200" fill="none" stroke="#3A8D7E" stroke-width="2" />
+              <circle cx="0" cy="200" r="4" fill="#3A8D7E" id="pt1" />
+              <circle cx="300" cy="200" r="4" fill="#3A8D7E" id="pt2" />
+            </svg>
           </div>
+        </div>
+        <div class="chart-x-axis">
+          <span class="chart-x-label" id="x-start">-</span>
+          <span class="chart-x-label" id="x-end">-</span>
         </div>
       </div>
     </div>
@@ -549,6 +655,11 @@
           <div class="quick-action-label">Stripe Dashboard</div>
         </div>
       </div>
+    </div>
+    
+    <!-- EMAIL FOOTER -->
+    <div class="email-footer">
+      Questions? Email us at <a href="mailto:autoflowicu@gmail.com">autoflowicu@gmail.com</a>
     </div>
   </div>
 
@@ -637,452 +748,7 @@
         <option value="Carpet Cleaning">Carpet Cleaning</option>
         <option value="Water Damage">Water Damage</option>
         <option value="Mold Remediation">Mold Remediation</option>
-        <option value="Asbestos Removal">Asbestos Removal</option>
-        <option value="Demolition">Demolition</option>
-        <option value="Concrete Work">Concrete Work</option>
-        <option value="Masonry">Masonry</option>
-        <option value="Painting Contractor">Painting Contractor</option>
-        <option value="Flooring">Flooring</option>
-        <option value="Tile Work">Tile Work</option>
-        <option value="Cabinetry">Cabinetry</option>
-        <option value="Countertops">Countertops</option>
-        <option value="Kitchen Remodel">Kitchen Remodel</option>
-        <option value="Bathroom Remodel">Bathroom Remodel</option>
-        <option value="Basement Finish">Basement Finish</option>
-        <option value="Deck Builder">Deck Builder</option>
-        <option value="Fence Contractor">Fence Contractor</option>
         <option value="Pool Service">Pool Service</option>
-        <option value="Hot Tub Service">Hot Tub Service</option>
-        <option value="Sprinkler System">Sprinkler System</option>
-        <option value="Irrigation">Irrigation</option>
-        <option value="Septic Service">Septic Service</option>
-        <option value="Well Drilling">Well Drilling</option>
-        <option value="Propane Delivery">Propane Delivery</option>
-        <option value="Heating Oil">Heating Oil</option>
-        <option value="Solar Installation">Solar Installation</option>
-        <option value="Generator Sales">Generator Sales</option>
-        <option value="Boat Repair">Boat Repair</option>
-        <option value="Marina">Marina</option>
-        <option value="Fishing Charter">Fishing Charter</option>
-        <option value="Tour Company">Tour Company</option>
-        <option value="Limousine Service">Limousine Service</option>
-        <option value="Taxi/Rideshare">Taxi/Rideshare</option>
-        <option value="Auto Body Shop">Auto Body Shop</option>
-        <option value="Transmission Shop">Transmission Shop</option>
-        <option value="Brake Shop">Brake Shop</option>
-        <option value="Tire Shop">Tire Shop</option>
-        <option value="Oil Change">Oil Change</option>
-        <option value="Car Wash">Car Wash</option>
-        <option value="Emissions Testing">Emissions Testing</option>
-        <option value="Driving School">Driving School</option>
-        <option value="Gun Shop/Range">Gun Shop/Range</option>
-        <option value="Pawn Shop">Pawn Shop</option>
-        <option value="Check Cashing">Check Cashing</option>
-        <option value="Title Loans">Title Loans</option>
-        <option value="Payday Loans">Payday Loans</option>
-        <option value="Credit Repair">Credit Repair</option>
-        <option value="Debt Consolidation">Debt Consolidation</option>
-        <option value="Insurance Adjuster">Insurance Adjuster</option>
-        <option value="Public Adjuster">Public Adjuster</option>
-        <option value="Surveyor">Surveyor</option>
-        <option value="Engineering Firm">Engineering Firm</option>
-        <option value="Architect">Architect</option>
-        <option value="Interior Designer">Interior Designer</option>
-        <option value="Staging Service">Staging Service</option>
-        <option value="Property Management">Property Management</option>
-        <option value="HOA Management">HOA Management</option>
-        <option value="Waste Management">Waste Management</option>
-        <option value="Recycling Service">Recycling Service</option>
-        <option value="Junk Removal">Junk Removal</option>
-        <option value="Dumpster Rental">Dumpster Rental</option>
-        <option value="Portable Toilet">Portable Toilet</option>
-        <option value="Temporary Fence">Temporary Fence</option>
-        <option value="Crane Service">Crane Service</option>
-        <option value="Equipment Rental">Equipment Rental</option>
-        <option value="Tool Rental">Tool Rental</option>
-        <option value="Party Rental">Party Rental</option>
-        <option value="Bounce House">Bounce House</option>
-        <option value="Tent/Canopy">Tent/Canopy</option>
-        <option value="Catering Equipment">Catering Equipment</option>
-        <option value="Audio/Visual Rental">Audio/Visual Rental</option>
-        <option value="DJ Service">DJ Service</option>
-        <option value="Band/Musician">Band/Musician</option>
-        <option value="Event Planner">Event Planner</option>
-        <option value="Wedding Planner">Wedding Planner</option>
-        <option value="Florist/Event">Florist/Event</option>
-        <option value="Balloon Artist">Balloon Artist</option>
-        <option value="Face Painter">Face Painter</option>
-        <option value="Magician/Entertainer">Magician/Entertainer</option>
-        <option value="Bounce House">Bounce House</option>
-        <option value="Escape Room">Escape Room</option>
-        <option value="Arcade">Arcade</option>
-        <option value="Bowling Alley">Bowling Alley</option>
-        <option value="Skating Rink">Skating Rink</option>
-        <option value="Golf Course">Golf Course</option>
-        <option value="Mini Golf">Mini Golf</option>
-        <option value="Driving Range">Driving Range</option>
-        <option value="Golf Simulator">Golf Simulator</option>
-        <option value="Yoga Studio">Yoga Studio</option>
-        <option value="Pilates Studio">Pilates Studio</option>
-        <option value="CrossFit Gym">CrossFit Gym</option>
-        <option value="Boxing Gym">Boxing Gym</option>
-        <option value="Martial Arts">Martial Arts</option>
-        <option value="Dance Studio">Dance Studio</option>
-        <option value="Music Lessons">Music Lessons</option>
-        <option value="Art Studio">Art Studio</option>
-        <option value="Pottery Studio">Pottery Studio</option>
-        <option value="Cooking Classes">Cooking Classes</option>
-        <option value="Wine Tasting">Wine Tasting</option>
-        <option value="Brewery">Brewery</option>
-        <option value="Distillery">Distillery</option>
-        <option value="Winery">Winery</option>
-        <option value="Cidery">Cidery</option>
-        <option value="Meader">Meader</option>
-        <option value="Sake Brewery">Sake Brewery</option>
-        <option value="Kombucha">Kombucha</option>
-        <option value="Cold Press Juice">Cold Press Juice</option>
-        <option value="Smoothie Bar">Smoothie Bar</option>
-        <option value="Acai Bowl">Acai Bowl</option>
-        <option value="Ice Cream Shop">Ice Cream Shop</option>
-        <option value="Frozen Yogurt">Frozen Yogurt</option>
-        <option value="Candy Store">Candy Store</option>
-        <option value="Chocolate Shop">Chocolate Shop</option>
-        <option value="Donut Shop">Donut Shop</option>
-        <option value="Bagel Shop">Bagel Shop</option>
-        <option value="Deli">Deli</option>
-        <option value="Pizza Shop">Pizza Shop</option>
-        <option value="Wings Shop">Wings Shop</option>
-        <option value="BBQ Restaurant">BBQ Restaurant</option>
-        <option value="Seafood Restaurant">Seafood Restaurant</option>
-        <option value="Sushi Restaurant">Sushi Restaurant</option>
-        <option value="Thai Restaurant">Thai Restaurant</option>
-        <option value="Indian Restaurant">Indian Restaurant</option>
-        <option value="Chinese Restaurant">Chinese Restaurant</option>
-        <option value="Mexican Restaurant">Mexican Restaurant</option>
-        <option value="Italian Restaurant">Italian Restaurant</option>
-        <option value="Greek Restaurant">Greek Restaurant</option>
-        <option value="Mediterranean Restaurant">Mediterranean Restaurant</option>
-        <option value="French Restaurant">French Restaurant</option>
-        <option value="Japanese Restaurant">Japanese Restaurant</option>
-        <option value="Korean Restaurant">Korean Restaurant</option>
-        <option value="Vietnamese Restaurant">Vietnamese Restaurant</option>
-        <option value="Ethiopian Restaurant">Ethiopian Restaurant</option>
-        <option value="Jamaican Restaurant">Jamaican Restaurant</option>
-        <option value="Soul Food">Soul Food</option>
-        <option value="Cajun Restaurant">Cajun Restaurant</option>
-        <option value="Creole Restaurant">Creole Restaurant</option>
-        <option value="Tex-Mex Restaurant">Tex-Mex Restaurant</option>
-        <option value="Fusion Restaurant">Fusion Restaurant</option>
-        <option value="Farm-to-Table">Farm-to-Table</option>
-        <option value="Vegan Restaurant">Vegan Restaurant</option>
-        <option value="Vegetarian Restaurant">Vegetarian Restaurant</option>
-        <option value="Gluten-Free Bakery">Gluten-Free Bakery</option>
-        <option value="Keto Meal Prep">Keto Meal Prep</option>
-        <option value="Meal Delivery">Meal Delivery</option>
-        <option value="Grocery Delivery">Grocery Delivery</option>
-        <option value="Farmers Market Vendor">Farmers Market Vendor</option>
-        <option value="CSA Farm">CSA Farm</option>
-        <option value="Urban Farm">Urban Farm</option>
-        <option value="Hydroponics">Hydroponics</option>
-        <option value="Aquaponics">Aquaponics</option>
-        <option value="Nursery/Garden Center">Nursery/Garden Center</option>
-        <option value="Feed Store">Feed Store</option>
-        <option value="Tractor Supply">Tractor Supply</option>
-        <option value="Hardware Store">Hardware Store</option>
-        <option value="Paint Store">Paint Store</option>
-        <option value="Tile Showroom">Tile Showroom</option>
-        <option value="Lighting Showroom">Lighting Showroom</option>
-        <option value="Appliance Store">Appliance Store</option>
-        <option value="Furniture Store">Furniture Store</option>
-        <option value="Mattress Store">Mattress Store</option>
-        <option value="Rug Store">Rug Store</option>
-        <option value="Curtain/Blinds">Curtain/Blinds</option>
-        <option value="Closet Organizers">Closet Organizers</option>
-        <option value="Garage Organizers">Garage Organizers</option>
-        <option value="Home Theater">Home Theater</option>
-        <option value="Smart Home">Smart Home</option>
-        <option value="Home Security">Home Security</option>
-        <option value="Surveillance Cameras">Surveillance Cameras</option>
-        <option value="Access Control">Access Control</option>
-        <option value="Intercom Systems">Intercom Systems</option>
-        <option value="Fire Alarm">Fire Alarm</option>
-        <option value="Sprinkler Contractor">Sprinkler Contractor</option>
-        <option value="Elevator Service">Elevator Service</option>
-        <option value="Escalator Service">Escalator Service</option>
-        <option value="HVAC Controls">HVAC Controls</option>
-        <option value="Building Automation">Building Automation</option>
-        <option value="Energy Audit">Energy Audit</option>
-        <option value="Insulation Contractor">Insulation Contractor</option>
-        <option value="Weatherization">Weatherization</option>
-        <option value="Window Replacement">Window Replacement</option>
-        <option value="Door Replacement">Door Replacement</option>
-        <option value="Siding Contractor">Siding Contractor</option>
-        <option value="Gutter Contractor">Gutter Contractor</option>
-        <option value="Downspout">Downspout</option>
-        <option value="Chimney Sweep">Chimney Sweep</option>
-        <option value="Chimney Repair">Chimney Repair</option>
-        <option value="Fireplace Store">Fireplace Store</option>
-        <option value="Stove/Insert">Stove/Insert</option>
-        <option value="Pellet Sales">Pellet Sales</option>
-        <option value="Wood Delivery">Wood Delivery</option>
-        <option value="Propane Fireplace">Propane Fireplace</option>
-        <option value="Gas Log Sets">Gas Log Sets</option>
-        <option value="Outdoor Kitchen">Outdoor Kitchen</option>
-        <option value="Patio Builder">Patio Builder</option>
-        <option value="Pergola Builder">Pergola Builder</option>
-        <option value="Gazebo Builder">Gazebo Builder</option>
-        <option value="Shed Builder">Shed Builder</option>
-        <option value="Greenhouse Builder">Greenhouse Builder</option>
-        <option value="Sauna Builder">Sauna Builder</option>
-        <option value="Steam Room">Steam Room</option>
-        <option value="Hot Tub Sales">Hot Tub Sales</option>
-        <option value="Swim Spa">Swim Spa</option>
-        <option value="Pool Builder">Pool Builder</option>
-        <option value="Pool Remodel">Pool Remodel</option>
-        <option value="Pool Resurfacing">Pool Resurfacing</option>
-        <option value="Pool Equipment">Pool Equipment</option>
-        <option value="Pool Chemicals">Pool Chemicals</option>
-        <option value="Pool Covers">Pool Covers</option>
-        <option value="Pool Safety Fence">Pool Safety Fence</option>
-        <option value="Pool Heater">Pool Heater</option>
-        <option value="Pool Heat Pump">Pool Heat Pump</option>
-        <option value="Pool Automation">Pool Automation</option>
-        <option value="Pool Lighting">Pool Lighting</option>
-        <option value="Pool Waterfall">Pool Waterfall</option>
-        <option value="Pool Slide">Pool Slide</option>
-        <option value="Pool Diving Board">Pool Diving Board</option>
-        <option value="Pool Basketball">Pool Basketball</option>
-        <option value="Pool Volleyball">Pool Volleyball</option>
-        <option value="Pool Floats/Toys">Pool Floats/Toys</option>
-        <option value="Pool Furniture">Pool Furniture</option>
-        <option value="Outdoor Furniture">Outdoor Furniture</option>
-        <option value="Umbrella/Canopy">Umbrella/Canopy</option>
-        <option value="Outdoor Heater">Outdoor Heater</option>
-        <option value="Mosquito Control">Mosquito Control</option>
-        <option value="Tick Control">Tick Control</option>
-        <option value="Wildlife Removal">Wildlife Removal</option>
-        <option value="Animal Control">Animal Control</option>
-        <option value="Bee Removal">Bee Removal</option>
-        <option value="Wasp Removal">Wasp Removal</option>
-        <option value="Termite Control">Termite Control</option>
-        <option value="Bed Bug Exterminator">Bed Bug Exterminator</option>
-        <option value="Roach Exterminator">Roach Exterminator</option>
-        <option value="Rodent Control">Rodent Control</option>
-        <option value="Bird Control">Bird Control</option>
-        <option value="Bat Removal">Bat Removal</option>
-        <option value="Snake Removal">Snake Removal</option>
-        <option value="Alligator Removal">Alligator Removal</option>
-        <option value="Dead Animal Removal">Dead Animal Removal</option>
-        <option value="Odor Removal">Odor Removal</option>
-        <option value="Biohazard Cleanup">Biohazard Cleanup</option>
-        <option value="Crime Scene Cleanup">Crime Scene Cleanup</option>
-        <option value="Hoarding Cleanup">Hoarding Cleanup</option>
-        <option value="Estate Cleanout">Estate Cleanout</option>
-        <option value="Foreclosure Cleanup">Foreclosure Cleanup</option>
-        <option value="Construction Cleanup">Construction Cleanup</option>
-        <option value="Post-Renovation Cleanup">Post-Renovation Cleanup</option>
-        <option value="Move-in/Move-out Cleaning">Move-in/Move-out Cleaning</option>
-        <option value="Deep Cleaning">Deep Cleaning</option>
-        <option value="Green Cleaning">Green Cleaning</option>
-        <option value="Commercial Cleaning">Commercial Cleaning</option>
-        <option value="Industrial Cleaning">Industrial Cleaning</option>
-        <option value="Medical Cleaning">Medical Cleaning</option>
-        <option value="School Cleaning">School Cleaning</option>
-        <option value="Church Cleaning">Church Cleaning</option>
-        <option value="Event Cleanup">Event Cleanup</option>
-        <option value="Festival Cleanup">Festival Cleanup</option>
-        <option value="Concert Cleanup">Concert Cleanup</option>
-        <option value="Sports Venue Cleaning">Sports Venue Cleaning</option>
-        <option value="Stadium Cleaning">Stadium Cleaning</option>
-        <option value="Arena Cleaning">Arena Cleaning</option>
-        <option value="Convention Center Cleaning">Convention Center Cleaning</option>
-        <option value="Hotel Cleaning">Hotel Cleaning</option>
-        <option value="Resort Cleaning">Resort Cleaning</option>
-        <option value="Casino Cleaning">Casino Cleaning</option>
-        <option value="Airport Cleaning">Airport Cleaning</option>
-        <option value="Train Station Cleaning">Train Station Cleaning</option>
-        <option value="Bus Station Cleaning">Bus Station Cleaning</option>
-        <option value="Port Cleaning">Port Cleaning</option>
-        <option value="Warehouse Cleaning">Warehouse Cleaning</option>
-        <option value="Distribution Center Cleaning">Distribution Center Cleaning</option>
-        <option value="Factory Cleaning">Factory Cleaning</option>
-        <option value="Plant Cleaning">Plant Cleaning</option>
-        <option value="Refinery Cleaning">Refinery Cleaning</option>
-        <option value="Power Plant Cleaning">Power Plant Cleaning</option>
-        <option value="Nuclear Facility Cleaning">Nuclear Facility Cleaning</option>
-        <option value="Data Center Cleaning">Data Center Cleaning</option>
-        <option value="Server Room Cleaning">Server Room Cleaning</option>
-        <option value="Clean Room Cleaning">Clean Room Cleaning</option>
-        <option value="Laboratory Cleaning">Laboratory Cleaning</option>
-        <option value="Pharmaceutical Cleaning">Pharmaceutical Cleaning</option>
-        <option value="Food Processing Cleaning">Food Processing Cleaning</option>
-        <option value="Beverage Processing Cleaning">Beverage Processing Cleaning</option>
-        <option value="Dairy Processing Cleaning">Dairy Processing Cleaning</option>
-        <option value="Meat Processing Cleaning">Meat Processing Cleaning</option>
-        <option value="Bakery Processing Cleaning">Bakery Processing Cleaning</option>
-        <option value="Candy Processing Cleaning">Candy Processing Cleaning</option>
-        <option value="Ice Cream Processing Cleaning">Ice Cream Processing Cleaning</option>
-        <option value="Frozen Food Processing Cleaning">Frozen Food Processing Cleaning</option>
-        <option value="Canning Processing Cleaning">Canning Processing Cleaning</option>
-        <option value="Bottling Processing Cleaning">Bottling Processing Cleaning</option>
-        <option value="Packaging Processing Cleaning">Packaging Processing Cleaning</option>
-        <option value="Labeling Processing Cleaning">Labeling Processing Cleaning</option>
-        <option value="Palletizing Processing Cleaning">Palletizing Processing Cleaning</option>
-        <option value="Shipping Processing Cleaning">Shipping Processing Cleaning</option>
-        <option value="Receiving Processing Cleaning">Receiving Processing Cleaning</option>
-        <option value="Inventory Processing Cleaning">Inventory Processing Cleaning</option>
-        <option value="Quality Control Processing Cleaning">Quality Control Processing Cleaning</option>
-        <option value="Testing Processing Cleaning">Testing Processing Cleaning</option>
-        <option value="R&D Processing Cleaning">R&D Processing Cleaning</option>
-        <option value="Pilot Plant Processing Cleaning">Pilot Plant Processing Cleaning</option>
-        <option value="Scale-up Processing Cleaning">Scale-up Processing Cleaning</option>
-        <option value="Manufacturing Processing Cleaning">Manufacturing Processing Cleaning</option>
-        <option value="Assembly Processing Cleaning">Assembly Processing Cleaning</option>
-        <option value="Fabrication Processing Cleaning">Fabrication Processing Cleaning</option>
-        <option value="Machining Processing Cleaning">Machining Processing Cleaning</option>
-        <option value="Welding Processing Cleaning">Welding Processing Cleaning</option>
-        <option value="Painting Processing Cleaning">Painting Processing Cleaning</option>
-        <option value="Coating Processing Cleaning">Coating Processing Cleaning</option>
-        <option value="Plating Processing Cleaning">Plating Processing Cleaning</option>
-        <option value="Anodizing Processing Cleaning">Anodizing Processing Cleaning</option>
-        <option value="Powder Coating Processing Cleaning">Powder Coating Processing Cleaning</option>
-        <option value="Electroplating Processing Cleaning">Electroplating Processing Cleaning</option>
-        <option value="Galvanizing Processing Cleaning">Galvanizing Processing Cleaning</option>
-        <option value="Heat Treating Processing Cleaning">Heat Treating Processing Cleaning</option>
-        <option value="Forging Processing Cleaning">Forging Processing Cleaning</option>
-        <option value="Casting Processing Cleaning">Casting Processing Cleaning</option>
-        <option value="Molding Processing Cleaning">Molding Processing Cleaning</option>
-        <option value="Extrusion Processing Cleaning">Extrusion Processing Cleaning</option>
-        <option value="Injection Molding Processing Cleaning">Injection Molding Processing Cleaning</option>
-        <option value="Blow Molding Processing Cleaning">Blow Molding Processing Cleaning</option>
-        <option value="Rotational Molding Processing Cleaning">Rotational Molding Processing Cleaning</option>
-        <option value="Compression Molding Processing Cleaning">Compression Molding Processing Cleaning</option>
-        <option value="Transfer Molding Processing Cleaning">Transfer Molding Processing Cleaning</option>
-        <option value="Thermoforming Processing Cleaning">Thermoforming Processing Cleaning</option>
-        <option value="Vacuum Forming Processing Cleaning">Vacuum Forming Processing Cleaning</option>
-        <option value="Pressure Forming Processing Cleaning">Pressure Forming Processing Cleaning</option>
-        <option value="Drape Forming Processing Cleaning">Drape Forming Processing Cleaning</option>
-        <option value="Match Metal Forming Processing Cleaning">Match Metal Forming Processing Cleaning</option>
-        <option value="Twin Sheet Forming Processing Cleaning">Twin Sheet Forming Processing Cleaning</option>
-        <option value="Plug Assist Forming Processing Cleaning">Plug Assist Forming Processing Cleaning</option>
-        <option value="Billow Forming Processing Cleaning">Billow Forming Processing Cleaning</option>
-        <option value="Snap Back Forming Processing Cleaning">Snap Back Forming Processing Cleaning</option>
-        <option value="Air Slip Forming Processing Cleaning">Air Slip Forming Processing Cleaning</option>
-        <option value="Air Pressure Forming Processing Cleaning">Air Pressure Forming Processing Cleaning</option>
-        <option value="Free Forming Processing Cleaning">Free Forming Processing Cleaning</option>
-        <option value="Stretch Forming Processing Cleaning">Stretch Forming Processing Cleaning</option>
-        <option value="Rubber Forming Processing Cleaning">Rubber Forming Processing Cleaning</option>
-        <option value="Hydroforming Processing Cleaning">Hydroforming Processing Cleaning</option>
-        <option value="Explosive Forming Processing Cleaning">Explosive Forming Processing Cleaning</option>
-        <option value="Electromagnetic Forming Processing Cleaning">Electromagnetic Forming Processing Cleaning</option>
-        <option value="Electrohydraulic Forming Processing Cleaning">Electrohydraulic Forming Processing Cleaning</option>
-        <option value="Magnetic Pulse Forming Processing Cleaning">Magnetic Pulse Forming Processing Cleaning</option>
-        <option value="Superplastic Forming Processing Cleaning">Superplastic Forming Processing Cleaning</option>
-        <option value="Incremental Forming Processing Cleaning">Incremental Forming Processing Cleaning</option>
-        <option value="Spinning Forming Processing Cleaning">Spinning Forming Processing Cleaning</option>
-        <option value="Flow Turning Forming Processing Cleaning">Flow Turning Forming Processing Cleaning</option>
-        <option value="Shear Forming Forming Processing Cleaning">Shear Forming Forming Processing Cleaning</option>
-        <option value="Tube Spinning Forming Processing Cleaning">Tube Spinning Forming Processing Cleaning</option>
-        <option value="Ring Rolling Forming Processing Cleaning">Ring Rolling Forming Processing Cleaning</option>
-        <option value="Ring Expanding Forming Processing Cleaning">Ring Expanding Forming Processing Cleaning</option>
-        <option value="Ring Contracting Forming Processing Cleaning">Ring Contracting Forming Processing Cleaning</option>
-        <option value="Flange Forming Forming Processing Cleaning">Flange Forming Forming Processing Cleaning</option>
-        <option value="Bulging Forming Processing Cleaning">Bulging Forming Processing Cleaning</option>
-        <option value="Necking Forming Processing Cleaning">Necking Forming Processing Cleaning</option>
-        <option value="Nosing Forming Processing Cleaning">Nosing Forming Processing Cleaning</option>
-        <option value="Curling Forming Processing Cleaning">Curling Forming Processing Cleaning</option>
-        <option value="Hemming Forming Processing Cleaning">Hemming Forming Processing Cleaning</option>
-        <option value="Seaming Forming Processing Cleaning">Seaming Forming Processing Cleaning</option>
-        <option value="Crimping Forming Processing Cleaning">Crimping Forming Processing Cleaning</option>
-        <option value="Beading Forming Processing Cleaning">Beading Forming Processing Cleaning</option>
-        <option value="Swaging Forming Processing Cleaning">Swaging Forming Processing Cleaning</option>
-        <option value="Piercing Forming Processing Cleaning">Piercing Forming Processing Cleaning</option>
-        <option value="Punching Forming Processing Cleaning">Punching Forming Processing Cleaning</option>
-        <option value="Blanking Forming Processing Cleaning">Blanking Forming Processing Cleaning</option>
-        <option value="Notching Forming Processing Cleaning">Notching Forming Processing Cleaning</option>
-        <option value="Lancing Forming Processing Cleaning">Lancing Forming Processing Cleaning</option>
-        <option value="Slitting Forming Processing Cleaning">Slitting Forming Processing Cleaning</option>
-        <option value="Trimming Forming Processing Cleaning">Trimming Forming Processing Cleaning</option>
-        <option value="Shaving Forming Processing Cleaning">Shaving Forming Processing Cleaning</option>
-        <option value="Fine Blanking Forming Processing Cleaning">Fine Blanking Forming Processing Cleaning</option>
-        <option value="Semi-Piercing Forming Processing Cleaning">Semi-Piercing Forming Processing Cleaning</option>
-        <option value="Coining Forming Processing Cleaning">Coining Forming Processing Cleaning</option>
-        <option value="Sizing Forming Processing Cleaning">Sizing Forming Processing Cleaning</option>
-        <option value="Ironing Forming Processing Cleaning">Ironing Forming Processing Cleaning</option>
-        <option value="Redrawing Forming Processing Cleaning">Redrawing Forming Processing Cleaning</option>
-        <option value="Reverse Redrawing Forming Processing Cleaning">Reverse Redrawing Forming Processing Cleaning</option>
-        <option value="Embossing Forming Processing Cleaning">Embossing Forming Processing Cleaning</option>
-        <option value="Coining Forming Processing Cleaning">Coining Forming Processing Cleaning</option>
-        <option value="Stamping Forming Processing Cleaning">Stamping Forming Processing Cleaning</option>
-        <option value="Progressive Die Forming Processing Cleaning">Progressive Die Forming Processing Cleaning</option>
-        <option value="Transfer Die Forming Processing Cleaning">Transfer Die Forming Processing Cleaning</option>
-        <option value="Compound Die Forming Processing Cleaning">Compound Die Forming Processing Cleaning</option>
-        <option value="Combination Die Forming Processing Cleaning">Combination Die Forming Processing Cleaning</option>
-        <option value="Steel Rule Die Forming Processing Cleaning">Steel Rule Die Forming Processing Cleaning</option>
-        <option value="Rotary Die Forming Processing Cleaning">Rotary Die Forming Processing Cleaning</option>
-        <option value="Flat Bed Die Forming Processing Cleaning">Flat Bed Die Forming Processing Cleaning</option>
-        <option value="Laser Die Forming Processing Cleaning">Laser Die Forming Processing Cleaning</option>
-        <option value="Water Jet Die Forming Processing Cleaning">Water Jet Die Forming Processing Cleaning</option>
-        <option value="Plasma Die Forming Processing Cleaning">Plasma Die Forming Processing Cleaning</option>
-        <option value="Oxy-Fuel Die Forming Processing Cleaning">Oxy-Fuel Die Forming Processing Cleaning</option>
-        <option value="Flame Cutting Die Forming Processing Cleaning">Flame Cutting Die Forming Processing Cleaning</option>
-        <option value="Arc Cutting Die Forming Processing Cleaning">Arc Cutting Die Forming Processing Cleaning</option>
-        <option value="Resistance Cutting Die Forming Processing Cleaning">Resistance Cutting Die Forming Processing Cleaning</option>
-        <option value="Electron Beam Cutting Die Forming Processing Cleaning">Electron Beam Cutting Die Forming Processing Cleaning</option>
-        <option value="Ion Beam Cutting Die Forming Processing Cleaning">Ion Beam Cutting Die Forming Processing Cleaning</option>
-        <option value="Ultrasonic Cutting Die Forming Processing Cleaning">Ultrasonic Cutting Die Forming Processing Cleaning</option>
-        <option value="Abrasive Cutting Die Forming Processing Cleaning">Abrasive Cutting Die Forming Processing Cleaning</option>
-        <option value="Friction Cutting Die Forming Processing Cleaning">Friction Cutting Die Forming Processing Cleaning</option>
-        <option value="Thermal Cutting Die Forming Processing Cleaning">Thermal Cutting Die Forming Processing Cleaning</option>
-        <option value="Cryogenic Cutting Die Forming Processing Cleaning">Cryogenic Cutting Die Forming Processing Cleaning</option>
-        <option value="Chemical Cutting Die Forming Processing Cleaning">Chemical Cutting Die Forming Processing Cleaning</option>
-        <option value="Electrochemical Cutting Die Forming Processing Cleaning">Electrochemical Cutting Die Forming Processing Cleaning</option>
-        <option value="Photochemical Cutting Die Forming Processing Cleaning">Photochemical Cutting Die Forming Processing Cleaning</option>
-        <option value="Electrical Discharge Cutting Die Forming Processing Cleaning">Electrical Discharge Cutting Die Forming Processing Cleaning</option>
-        <option value="Wire EDM Cutting Die Forming Processing Cleaning">Wire EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="Sinker EDM Cutting Die Forming Processing Cleaning">Sinker EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="Fast Hole EDM Cutting Die Forming Processing Cleaning">Fast Hole EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="Small Hole EDM Cutting Die Forming Processing Cleaning">Small Hole EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="Micro EDM Cutting Die Forming Processing Cleaning">Micro EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="Powder EDM Cutting Die Forming Processing Cleaning">Powder EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="Dry EDM Cutting Die Forming Processing Cleaning">Dry EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="Near-Dry EDM Cutting Die Forming Processing Cleaning">Near-Dry EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="Submerged EDM Cutting Die Forming Processing Cleaning">Submerged EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="Flushing EDM Cutting Die Forming Processing Cleaning">Flushing EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="No-Flush EDM Cutting Die Forming Processing Cleaning">No-Flush EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="Reverse Flushing EDM Cutting Die Forming Processing Cleaning">Reverse Flushing EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="Pressure Flushing EDM Cutting Die Forming Processing Cleaning">Pressure Flushing EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="Suction Flushing EDM Cutting Die Forming Processing Cleaning">Suction Flushing EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="Injection Flushing EDM Cutting Die Forming Processing Cleaning">Injection Flushing EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="Immersion Flushing EDM Cutting Die Forming Processing Cleaning">Immersion Flushing EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="Spray Flushing EDM Cutting Die Forming Processing Cleaning">Spray Flushing EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="Mist Flushing EDM Cutting Die Forming Processing Cleaning">Mist Flushing EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="Fog Flushing EDM Cutting Die Forming Processing Cleaning">Fog Flushing EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="Steam Flushing EDM Cutting Die Forming Processing Cleaning">Steam Flushing EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="Air Flushing EDM Cutting Die Forming Processing Cleaning">Air Flushing EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="Vacuum Flushing EDM Cutting Die Forming Processing Cleaning">Vacuum Flushing EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="Centrifugal Flushing EDM Cutting Die Forming Processing Cleaning">Centrifugal Flushing EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="Ultrasonic Flushing EDM Cutting Die Forming Processing Cleaning">Ultrasonic Flushing EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="Vibratory Flushing EDM Cutting Die Forming Processing Cleaning">Vibratory Flushing EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="Abrasive Flow Flushing EDM Cutting Die Forming Processing Cleaning">Abrasive Flow Flushing EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="Magnetic Abrasive Flushing EDM Cutting Die Forming Processing Cleaning">Magnetic Abrasive Flushing EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="Electrochemical Flushing EDM Cutting Die Forming Processing Cleaning">Electrochemical Flushing EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="Electrolytic Flushing EDM Cutting Die Forming Processing Cleaning">Electrolytic Flushing EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="Plasma Flushing EDM Cutting Die Forming Processing Cleaning">Plasma Flushing EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="Laser Flushing EDM Cutting Die Forming Processing Cleaning">Laser Flushing EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="Electron Beam Flushing EDM Cutting Die Forming Processing Cleaning">Electron Beam Flushing EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="Ion Beam Flushing EDM Cutting Die Forming Processing Cleaning">Ion Beam Flushing EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="Photon Beam Flushing EDM Cutting Die Forming Processing Cleaning">Photon Beam Flushing EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="Neutron Beam Flushing EDM Cutting Die Forming Processing Cleaning">Neutron Beam Flushing EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="X-Ray Flushing EDM Cutting Die Forming Processing Cleaning">X-Ray Flushing EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="Gamma Ray Flushing EDM Cutting Die Forming Processing Cleaning">Gamma Ray Flushing EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="Alpha Particle Flushing EDM Cutting Die Forming Processing Cleaning">Alpha Particle Flushing EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="Beta Particle Flushing EDM Cutting Die Forming Processing Cleaning">Beta Particle Flushing EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="Proton Beam Flushing EDM Cutting Die Forming Processing Cleaning">Proton Beam Flushing EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="Heavy Ion Beam Flushing EDM Cutting Die Forming Processing Cleaning">Heavy Ion Beam Flushing EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="Muon Beam Flushing EDM Cutting Die Forming Processing Cleaning">Muon Beam Flushing EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="Pion Beam Flushing EDM Cutting Die Forming Processing Cleaning">Pion Beam Flushing EDM Cutting Die Forming Processing Cleaning</option>
-        <option value="Kaon Beam Flushing EDM Cutting Die Forming Processing Cleaning">Kaon Beam Flushing EDM Cutting Die Forming Processing Cleaning</option>
         <option value="Other">Other (type below)</option>
       </select>
       <input type="text" id="scan-industry-custom" placeholder="Type custom profession here..." style="display:none;">
@@ -1246,6 +912,67 @@ function renderStars(rating) {
   return html;
 }
 
+// Generate sample revenue data based on stats
+function generateRevenueData(mrr) {
+  const months = [];
+  const values = [];
+  const now = new Date();
+  const baseMrr = mrr || 0;
+  
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const monthName = d.toLocaleDateString('en-US', { month: 'short' });
+    months.push(monthName);
+    // Simulate growth curve ending at current MRR
+    const growth = (6 - i) / 6;
+    const randomFactor = 0.8 + Math.random() * 0.4;
+    values.push(Math.round(baseMrr * growth * randomFactor));
+  }
+  
+  // Ensure last point matches current MRR
+  values[values.length - 1] = baseMrr;
+  
+  return { months, values };
+}
+
+function updateRevenueChart(mrr) {
+  const data = generateRevenueData(mrr);
+  const maxVal = Math.max(...data.values, 1);
+  const minVal = Math.min(...data.values);
+  
+  // Update Y axis labels
+  document.getElementById('y-max').textContent = formatMoney(maxVal);
+  document.getElementById('y-mid').textContent = formatMoney(Math.round(maxVal * 0.5));
+  document.getElementById('y-min').textContent = '$0';
+  
+  // Update X axis labels
+  document.getElementById('x-start').textContent = data.months[0];
+  document.getElementById('x-end').textContent = data.months[data.months.length - 1];
+  
+  // Build SVG path
+  const width = 300;
+  const height = 200;
+  const points = data.values.map((v, i) => {
+    const x = (i / (data.values.length - 1)) * width;
+    const y = height - ((v / maxVal) * height * 0.9) - 10; // 10px padding at bottom
+    return { x, y };
+  });
+  
+  // Line path
+  const lineD = points.map((p, i) => (i === 0 ? `M${p.x},${p.y}` : `L${p.x},${p.y}`)).join(' ');
+  document.getElementById('chart-line-path').setAttribute('d', lineD);
+  
+  // Area path (line + bottom corners)
+  const areaD = lineD + ` L${width},${height} L0,${height} Z`;
+  document.getElementById('chart-area-path').setAttribute('d', areaD);
+  
+  // Update circles
+  document.getElementById('pt1').setAttribute('cx', points[0].x);
+  document.getElementById('pt1').setAttribute('cy', points[0].y);
+  document.getElementById('pt2').setAttribute('cx', points[points.length - 1].x);
+  document.getElementById('pt2').setAttribute('cy', points[points.length - 1].y);
+}
+
 async function loadStats() {
   if (!isLoggedIn) return;
   try {
@@ -1261,6 +988,9 @@ async function loadStats() {
     document.getElementById('sub-bar').style.width = Math.min(100, ((stats.subscribers || 0) / 50) * 100) + '%';
     document.getElementById('prospect-bar').style.width = Math.min(100, ((stats.prospects || 0) / 100) * 100) + '%';
     document.getElementById('email-bar').style.width = Math.min(100, ((stats.emailsSent || 0) / 200) * 100) + '%';
+    
+    // Update revenue chart
+    updateRevenueChart(stats.mrr || 0);
   } catch (e) {
     console.error('Stats error:', e);
   }
