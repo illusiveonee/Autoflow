@@ -361,7 +361,7 @@
     }
     .table-header {
       display: grid;
-      grid-template-columns: 2fr 1.5fr 1fr 70px 70px;
+      grid-template-columns: 2fr 1.2fr 1fr 60px 80px 1.5fr;
       padding: 12px 16px;
       font-size: 11px;
       font-weight: 600;
@@ -372,7 +372,7 @@
     }
     .table-row {
       display: grid;
-      grid-template-columns: 2fr 1.5fr 1fr 70px 70px;
+      grid-template-columns: 2fr 1.2fr 1fr 60px 80px 1.5fr;
       padding: 14px 16px;
       align-items: center;
       border-bottom: 1px solid #f5f5f5;
@@ -527,7 +527,7 @@
       .grid-2 { grid-template-columns: 1fr 1fr; gap: 10px; }
       .card-value { font-size: 26px; }
       .table-header, .table-row {
-        grid-template-columns: 2fr 1.5fr 1fr 60px 60px;
+        grid-template-columns: 2fr 1.2fr 1fr 55px 70px 1.2fr;
         padding: 12px 10px;
         font-size: 12px;
       }
@@ -759,11 +759,12 @@
     
     <div class="table-card">
       <div class="table-header">
-        <div>Business / Email</div>
+        <div>Business</div>
         <div>City</div>
         <div>Rating</div>
         <div>Pain</div>
         <div>Industry</div>
+        <div>Email</div>
       </div>
       <div id="prospects-list">
         <div class="empty-state">No prospects yet. Scan a city to find leads.</div>
@@ -1013,12 +1014,12 @@ async function loadProspects() {
       <div class="table-row">
         <div>
           <div class="biz-name">${escapeHtml(p.name)}</div>
-          <div class="biz-email">${escapeHtml(p.email)}</div>
         </div>
         <div class="biz-city">${escapeHtml(p.city)}</div>
         <div class="stars">${renderStars(p.rating)}<span style="color:#666;font-size:11px;margin-left:3px">${p.rating || '-'}</span></div>
         <div><span class="pain-badge ${getPainClass(p.pain)}">${p.pain}</span></div>
         <div class="biz-city">${escapeHtml(p.industry || '')}</div>
+        <div class="biz-email">${escapeHtml(p.email)}</div>
       </div>
     `).join('');
   } catch (e) {
